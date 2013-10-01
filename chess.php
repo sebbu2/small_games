@@ -3,6 +3,14 @@
 <head>
 <title>Chess</title>
 <meta charset="UTF-8"/>
+<style>
+TABLE TR {
+	height: 20px;
+}
+TABLE TD {
+	width: 20px;
+}
+</style>
 </head>
 <body>
 
@@ -21,13 +29,14 @@ abstract class Piece {
 	public function __construct(&$parent=NULL) {
 		$this->parent=$parent;
 	}
-	public function can_move($diff_x, $diff_y) { return false; }
+	public function get_possible_moves() { return array(); }
+	public function can_move($diff_x, $diff_y, $multiplier=1) { return false; }
 	public function can_eat($diff_x, $diff_y) { return $this->can_move($diff_x, $diff_y); }
 }
 class Pawn extends Piece {
-	public function can_move($diff_x, $diff_y) {
-		if($this->y===6) return ($diff_y<=-1 && $diff_y>=-2);
-		else return ($diff_y==-1);
+	public function can_move($diff_x, $diff_y, $multiplier=1) {
+		if($this->y===6) return ($diff_x==0 && $diff_y<=-1 && $diff_y>=-2);
+		else return ($diff_x==0 && $diff_y==-1);
 	}
 	public function can_eat($diff_x, $diff_y) {
 		return (abs($diff_x)==1 && $diff_y==-1);
@@ -37,7 +46,7 @@ class Pawn extends Piece {
 	}
 }
 class Rook extends Piece {
-	public function can_move($diff_x, $diff_y) {
+	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return (
 			( ($diff_x==0 && abs($diff_y)>0) || ($diff_y==0 && abs($diff_x)>0) ) &&
 			$this->parent->is_free($this->x, $this->y, $this->x+$diff_x, $this->y+$diff_y)
@@ -49,7 +58,7 @@ class Rook extends Piece {
 	}
 }
 class Knight extends Piece {
-	public function can_move($diff_x, $diff_y) {
+	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return ( ( abs($diff_x)>=1 && abs($diff_x)<=2 ) && ( abs($diff_y)>=1 && abs($diff_y)<=2) && ( abs($diff_x)+abs($diff_y)==3 ) );
 	}
 	public function __toString() {
@@ -57,7 +66,7 @@ class Knight extends Piece {
 	}
 }
 class Bishop extends Piece {
-	public function can_move($diff_x, $diff_y) {
+	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return (
 			( abs($diff_x)==abs($diff_y) ) && abs($diff_x)>0 &&
 			$this->parent->is_free($this->x, $this->y, $this->x+$diff_x, $this->y+$diff_y)
@@ -68,7 +77,7 @@ class Bishop extends Piece {
 	}
 }
 class King extends Piece {
-	public function can_move($diff_x, $diff_y) {
+	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return ( abs($diff_x)<=1 && abs($diff_y)<=1 && (abs($diff_x)+abs($diff_y)>=1) );
 	}
 	public function __toString() {
@@ -76,9 +85,9 @@ class King extends Piece {
 	}
 }
 class Queen extends Piece {
-	public function can_move($diff_x, $diff_y) {
+	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return (
-			(abs($diff_x)==abs(diff_y)) || ($diff_x==0 && abs($diff_y)>0) || ($diff_y==0 && abs($diff_x)>0) &&
+			(abs($diff_x)==abs($diff_y)) || ($diff_x==0 && abs($diff_y)>0) || ($diff_y==0 && abs($diff_x)>0) &&
 			$this->parent->is_free($this->x, $this->y, $this->x+$diff_x, $this->y+$diff_y)
 		);
 	}
@@ -104,16 +113,18 @@ class board {
 		}
 	}
 	public function is_empty($x, $y) {
-		return ( ! ($grid[$y][$x] instanceof Piece) );
+		return ( ! ($this->grid[$y][$x] instanceof Piece) );
 	}
 	public function is_free($src_x, $src_y, $dst_x, $dst_y) {
-		assert( $src_x==$dst_x || $src_y==$dst_y || (($src_x-$dst_x)==($src_y-$dst_y)) );
+		assert( $src_x==$dst_x || $src_y==$dst_y || (abs($src_x-$dst_x)==abs($src_y-$dst_y)) );
 		$diff_x=$dst_x-$src_x;
 		$diff_y=$dst_y-$src_y;
-		$px=$diff_x/abs($diff_x);
-		$py=$diff_y/abs($diff_y);
+		$px=$diff_x;
+		if(abs($diff_x)!=0) $px/=abs($diff_x);
+		$py=$diff_y;
+		if(abs($diff_y)!=0) $py/=abs($diff_y);
 		for($i=1; $i<max(abs($diff_x),abs($diff_y)); ++$i) {
-			if($this->is_empty($src_x+$px*$i, $src_y+$py*$i)) return false;
+			if(! $this->is_empty($src_x+$px*$i, $src_y+$py*$i)) return false;
 		}
 		return true;
 	}
