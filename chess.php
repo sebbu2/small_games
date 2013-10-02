@@ -1,19 +1,3 @@
-<!DOCTYPE html>
-<html>
-<head>
-<title>Chess</title>
-<meta charset="UTF-8"/>
-<style>
-TABLE TR {
-	height: 20px;
-}
-TABLE TD {
-	width: 20px;
-}
-</style>
-</head>
-<body>
-
 <?php
 function is_black($c) {
 	return ($c==='B'||$c==='Black');
@@ -21,6 +5,22 @@ function is_black($c) {
 function is_white($c) {
 	return ($c==='W'||$c==='White');
 }
+$initials_en=array(
+'Pawn'=>'',
+'Rook'=>'R',
+'Bishop'=>'B',
+'Knight'=>'N',
+'King'=>'K',
+'Queen'=>'Q',
+);
+$initials_fr=array(
+'Pawn'=>'',
+'Rook'=>'T',
+'Bishop'=>'F',
+'Knight'=>'C',
+'King'=>'R',
+'Queen'=>'D',
+);
 abstract class Piece {
 	public $x;
 	public $y;
@@ -34,6 +34,11 @@ abstract class Piece {
 	public function can_eat($diff_x, $diff_y) { return $this->can_move($diff_x, $diff_y); }
 }
 class Pawn extends Piece {
+	public function get_possible_moves() {
+		$ar=array(array('diff_x'=>0,'diff_y'=>-1,'multiplier'=>1));
+		if($this->y===6) $ar[]=array('diff_x'=>0,'diff_y'=>-2);
+		return $ar;
+	}
 	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		if($this->y===6) return ($diff_x==0 && $diff_y<=-1 && $diff_y>=-2);
 		else return ($diff_x==0 && $diff_y==-1);
@@ -46,6 +51,15 @@ class Pawn extends Piece {
 	}
 }
 class Rook extends Piece {
+	public function get_possible_moves() {
+		$ar=array(
+			array('diff_x'=>0,'diff_y'=>-1,'multiplier'=>7),
+			array('diff_x'=>1,'diff_y'=>0,'multiplier'=>7),
+			array('diff_x'=>0,'diff_y'=>1,'multiplier'=>7),
+			array('diff_x'=>-1,'diff_y'=>0,'multiplier'=>7),
+		);
+		return $ar;
+	}
 	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return (
 			( ($diff_x==0 && abs($diff_y)>0) || ($diff_y==0 && abs($diff_x)>0) ) &&
@@ -58,6 +72,19 @@ class Rook extends Piece {
 	}
 }
 class Knight extends Piece {
+	public function get_possible_moves() {
+		$ar=array(
+			array('diff_x'=>1,'diff_y'=>-2),
+			array('diff_x'=>2,'diff_y'=>-1),
+			array('diff_x'=>2,'diff_y'=>1),
+			array('diff_x'=>1,'diff_y'=>2),
+			array('diff_x'=>-1,'diff_y'=>2),
+			array('diff_x'=>-2,'diff_y'=>1),
+			array('diff_x'=>-2,'diff_y'=>-1),
+			array('diff_x'=>-1,'diff_y'=>-2),
+		);
+		return $ar;
+	}
 	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return ( ( abs($diff_x)>=1 && abs($diff_x)<=2 ) && ( abs($diff_y)>=1 && abs($diff_y)<=2) && ( abs($diff_x)+abs($diff_y)==3 ) );
 	}
@@ -66,6 +93,15 @@ class Knight extends Piece {
 	}
 }
 class Bishop extends Piece {
+	public function get_possible_moves() {
+		$ar=array(
+			array('diff_x'=>-1,'diff_y'=>-1,'multiplier'=>7),
+			array('diff_x'=>1,'diff_y'=>-1,'multiplier'=>7),
+			array('diff_x'=>1,'diff_y'=>1,'multiplier'=>7),
+			array('diff_x'=>-1,'diff_y'=>1,'multiplier'=>7),
+		);
+		return $ar;
+	}
 	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return (
 			( abs($diff_x)==abs($diff_y) ) && abs($diff_x)>0 &&
@@ -77,6 +113,19 @@ class Bishop extends Piece {
 	}
 }
 class King extends Piece {
+	public function get_possible_moves() {
+		$ar=array(
+			array('diff_x'=>-1,'diff_y'=>-1),
+			array('diff_x'=>0,'diff_y'=>-1),
+			array('diff_x'=>1,'diff_y'=>-1),
+			array('diff_x'=>-1,'diff_y'=>0),
+			array('diff_x'=>1,'diff_y'=>0),
+			array('diff_x'=>-1,'diff_y'=>1),
+			array('diff_x'=>0,'diff_y'=>1),
+			array('diff_x'=>1,'diff_y'=>1),
+		);
+		return $ar;
+	}
 	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return ( abs($diff_x)<=1 && abs($diff_y)<=1 && (abs($diff_x)+abs($diff_y)>=1) );
 	}
@@ -85,6 +134,19 @@ class King extends Piece {
 	}
 }
 class Queen extends Piece {
+	public function get_possible_moves() {
+		$ar=array(
+			array('diff_x'=>-1,'diff_y'=>-1,'multiplier'=>7),
+			array('diff_x'=>0,'diff_y'=>-1,'multiplier'=>7),
+			array('diff_x'=>1,'diff_y'=>-1,'multiplier'=>7),
+			array('diff_x'=>-1,'diff_y'=>0,'multiplier'=>7),
+			array('diff_x'=>1,'diff_y'=>0,'multiplier'=>7),
+			array('diff_x'=>-1,'diff_y'=>1,'multiplier'=>7),
+			array('diff_x'=>0,'diff_y'=>1,'multiplier'=>7),
+			array('diff_x'=>1,'diff_y'=>1,'multiplier'=>7),
+		);
+		return $ar;
+	}
 	public function can_move($diff_x, $diff_y, $multiplier=1) {
 		return (
 			(abs($diff_x)==abs($diff_y)) || ($diff_x==0 && abs($diff_y)>0) || ($diff_y==0 && abs($diff_x)>0) &&
@@ -134,57 +196,14 @@ class board {
 	public function get_piece($x, $y) {
 		return $this->grid[$y][$x];
 	}
-	public function add_piece($x, $y, $piece) {
+	public function add_piece($x, $y, $piece, $c=NULL) {
 		$p=new $piece($this);
 		$p->x=$x;
 		$p->y=$y;
-		$p->color=$this->cur_color;
+		if($c!==NULL) $p->color=$c;
+		else $p->color=$this->cur_color;
 		$this->grid[$y][$x]=$p;
+		return $p;
 	}
 };
-$board=new board();
-//var_dump($board->grid);
-$board->cur_color='W';
-$h=7;
-	$board->add_piece(0, $h, 'Rook');
-	$board->add_piece(1, $h, 'Knight');
-	$board->add_piece(2, $h, 'Bishop');
-	$board->add_piece(3, $h, 'Queen');
-	$board->add_piece(4, $h, 'King');
-	$board->add_piece(5, $h, 'Bishop');
-	$board->add_piece(6, $h, 'Knight');
-	$board->add_piece(7, $h, 'Rook');
---$h;
-	for($i=0;$i<8;++$i) {
-		$board->add_piece($i, $h, 'Pawn');
-	}
-$board->cur_color='B';
-$h=0;
-	$board->add_piece(0, $h, 'Rook');
-	$board->add_piece(1, $h, 'Knight');
-	$board->add_piece(2, $h, 'Bishop');
-	$board->add_piece(3, $h, 'Queen');
-	$board->add_piece(4, $h, 'King');
-	$board->add_piece(5, $h, 'Bishop');
-	$board->add_piece(6, $h, 'Knight');
-	$board->add_piece(7, $h, 'Rook');
-++$h;
-	for($i=0;$i<8;++$i) {
-		$board->add_piece($i, $h, 'Pawn');
-	}
-?><table border="1"><?php
-for($y=0;$y<8;++$y) {
 ?>
-	<tr>
-<?php
-	for($x=0;$x<8;++$x) {
-?>		<td><?php echo $board->get_piece($x, $y); ?></td>
-<?php
-	}
-?>	</tr><?php
-}
-?>
-</table>
-
-</body>
-</html>
