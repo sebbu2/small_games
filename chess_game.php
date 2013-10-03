@@ -4,11 +4,15 @@
 <title>Chess</title>
 <meta charset="UTF-8"/>
 <style>
+BODY {
+	font-size: 20pt;
+}
 TABLE TR {
-	height: 20px;
+	height: 35px;
 }
 TABLE TD {
-	width: 20px;
+	text-align: center;
+	width: 35px;
 }
 </style>
 </head>
@@ -52,8 +56,8 @@ for($y=0;$y<8;++$y) {
 	<tr>
 <?php
 	for($x=0;$x<8;++$x) {
-?>		<td><?php echo $board->get_piece($x, $y); ?></td>
-<?php
+		//echo '		<td>'.abbr((string)$board->get_piece($x, $y)).'</td>';
+		echo '		<td>'.symb((string)$board->get_piece($x, $y)).'</td>';
 	}
 ?>	</tr><?php
 }

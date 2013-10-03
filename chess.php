@@ -21,6 +21,38 @@ $initials_fr=array(
 'King'=>'R',
 'Queen'=>'D',
 );
+$symbols=array(
+	'W'=>array(
+		'King'=>'♔',
+		'Queen'=>'♕',
+		'Rook'=>'♖',
+		'Bishop'=>'♗',
+		'Knight'=>'♘',
+		'Pawn'=>'♙',
+	),
+	'B'=>array(
+		'King'=>'♚',
+		'Queen'=>'♛',
+		'Rook'=>'♜',
+		'Bishop'=>'♝',
+		'Knight'=>'♞',
+		'Pawn'=>'♟',
+	),
+);
+function symb($piece_name) {
+	global $symbols;
+	if(strlen($piece_name)==0) return '';
+	if(strlen($piece_name)==1) return $piece_name;
+	return $symbols[$piece_name[0]][substr($piece_name,1)];
+}
+function abbr($piece_name, $language='en') {
+	global $initials_en,$initials_fr;
+	if(strlen($piece_name)==0) return '';
+	if(strlen($piece_name)==1) return $piece_name;
+	if(!in_array($language, array('en','fr'))) return $piece_name; ///silent fail
+	$var='initials_'.$language;
+	return $piece_name[0].${$var}[substr($piece_name,1)];
+}
 abstract class Piece {
 	public $x;
 	public $y;
@@ -47,7 +79,7 @@ class Pawn extends Piece {
 		return (abs($diff_x)==1 && $diff_y==-1);
 	}
 	public function __toString() {
-		return 'Pawn';
+		return $this->color.'Pawn';
 	}
 }
 class Rook extends Piece {
@@ -68,7 +100,7 @@ class Rook extends Piece {
 		//return ($diff_x^$diff_y>0);
 	}
 	public function __toString() {
-		return 'Rook';
+		return $this->color.'Rook';
 	}
 }
 class Knight extends Piece {
@@ -89,7 +121,7 @@ class Knight extends Piece {
 		return ( ( abs($diff_x)>=1 && abs($diff_x)<=2 ) && ( abs($diff_y)>=1 && abs($diff_y)<=2) && ( abs($diff_x)+abs($diff_y)==3 ) );
 	}
 	public function __toString() {
-		return 'Knight';
+		return $this->color.'Knight';
 	}
 }
 class Bishop extends Piece {
@@ -109,7 +141,7 @@ class Bishop extends Piece {
 		);
 	}
 	public function __toString() {
-		return 'Bishop';
+		return $this->color.'Bishop';
 	}
 }
 class King extends Piece {
@@ -130,7 +162,7 @@ class King extends Piece {
 		return ( abs($diff_x)<=1 && abs($diff_y)<=1 && (abs($diff_x)+abs($diff_y)>=1) );
 	}
 	public function __toString() {
-		return 'King';
+		return $this->color.'King';
 	}
 }
 class Queen extends Piece {
@@ -154,7 +186,7 @@ class Queen extends Piece {
 		);
 	}
 	public function __toString() {
-		return 'Queen';
+		return $this->color.'Queen';
 	}
 }
 //black up (y=0), white down (y=7)
@@ -170,7 +202,7 @@ class board {
 		for($i=0;$i<$this->height;++$i) {
 			$this->grid[$i]=array();
 			for($j=0;$j<$this->width;++$j) {
-				$this->grid[$i][$j]='&nbsp;';
+				$this->grid[$i][$j]='';
 			}
 		}
 	}
