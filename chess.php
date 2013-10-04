@@ -72,11 +72,24 @@ class Pawn extends Piece {
 		return $ar;
 	}
 	public function can_move($diff_x, $diff_y, $multiplier=1) {
-		if($this->y===6) return ($diff_x==0 && $diff_y<=-1 && $diff_y>=-2);
-		else return ($diff_x==0 && $diff_y==-1);
+		if($this->color=='W') {
+			if($this->y===6) return ($diff_x==0 && $diff_y<=-1 && $diff_y>=-2);
+			else return ($diff_x==0 && $diff_y==-1);
+		}
+		else if($this->color=='B') {
+			if($this->y===1) return ($diff_x==0 && $diff_y>=1 && $diff_y<=2);
+			else return ($diff_x==0 && $diff_y==1);
+		}
+		else return false;
 	}
 	public function can_eat($diff_x, $diff_y) {
-		return (abs($diff_x)==1 && $diff_y==-1);
+		if($this->color=='W') {
+			return (abs($diff_x)==1 && $diff_y==-1);
+		}
+		else if($this->color=='B') {
+			return (abs($diff_x)==1 && $diff_y==1);
+		}
+		else return false;
 	}
 	public function __toString() {
 		return $this->color.'Pawn';
@@ -195,14 +208,18 @@ class board {
 	public $width;
 	public $height;
 	public $cur_color;
+	public $grid2=array();
 	public function __construct($width, $height) {
 		$this->grid=array();
+		$this->grid2=array();
 		$this->width=$width;
 		$this->height=$height;
 		for($i=0;$i<$this->height;++$i) {
 			$this->grid[$i]=array();
+			$this->grid2[$i]=array();
 			for($j=0;$j<$this->width;++$j) {
 				$this->grid[$i][$j]='';
+				$this->grid2[$i][$j]='';
 			}
 		}
 	}
@@ -210,7 +227,10 @@ class board {
 		return ( ! ($this->grid[$y][$x] instanceof Piece) );
 	}
 	public function is_free($src_x, $src_y, $dst_x, $dst_y) {
-		assert( $src_x==$dst_x || $src_y==$dst_y || (abs($src_x-$dst_x)==abs($src_y-$dst_y)) );
+		if(!( $src_x==$dst_x || $src_y==$dst_y || (abs($src_x-$dst_x)==abs($src_y-$dst_y)) )) {
+			//bad?
+			return true;
+		}
 		$diff_x=$dst_x-$src_x;
 		$diff_y=$dst_y-$src_y;
 		$px=$diff_x;
@@ -236,6 +256,20 @@ class board {
 		else $p->color=$this->cur_color;
 		$this->grid[$y][$x]=$p;
 		return $p;
+	}
+	public function can_move($sx, $sy, $dx, $dy) {
+		if(! $this->grid[$sy][$sx] instanceof Piece) return false;
+		if( $sx==$dx || $sy==$dy || (abs($sx-$dx)==abs($sy-$dy))) {
+			return ( $this->grid[$sy][$sx]->can_move($dx-$sx, $dy-$sy) && $this->is_free($sx, $sy, $dx, $dy) && $this->is_empty($dx, $dy) );
+		}
+		else {
+			return ( $this->grid[$sy][$sx]->can_move($dx-$sx, $dy-$sy) && $this->is_empty($dx, $dy) );
+		}
+	}
+	public function can_eat($sx, $sy, $dx, $dy) {
+		if(! $this->grid[$sy][$sx] instanceof Piece) return false;
+		if(! $this->grid[$dy][$dx] instanceof Piece) return false;
+		return ( $this->grid[$sy][$sx]->can_eat($dx-$sx, $dy-$sy) && $this->is_free($sx, $sy, $dx, $dy) && $this->grid[$sy][$sx]->color!=$this->grid[$dy][$dx]->color );
 	}
 };
 ?>
