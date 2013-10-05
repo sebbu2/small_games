@@ -271,5 +271,10 @@ class board {
 		if(! $this->grid[$dy][$dx] instanceof Piece) return false;
 		return ( $this->grid[$sy][$sx]->can_eat($dx-$sx, $dy-$sy) && $this->is_free($sx, $sy, $dx, $dy) && $this->grid[$sy][$sx]->color!=$this->grid[$dy][$dx]->color );
 	}
+	public function is_protecting($sx, $sy, $dx, $dy) {
+		if(! $this->grid[$sy][$sx] instanceof Piece) return false;
+		if(! $this->grid[$dy][$dx] instanceof Piece) return false;
+		return ( $this->grid[$sy][$sx]->can_eat($dx-$sx, $dy-$sy) && $this->is_free($sx, $sy, $dx, $dy) && $this->grid[$sy][$sx]->color==$this->grid[$dy][$dx]->color );
+	}
 };
 ?>

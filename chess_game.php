@@ -84,6 +84,11 @@ for($y=0;$y<8;++$y) {
 			$link1='<a href="?x='.$_GET['x'].'&y='.$_GET['y'].'&dx='.$x.'&dy='.$y.'">';
 			$m='';
 		}
+		elseif($_GET['x']>=0 && $_GET['y']>=0 && $board->is_protecting($_GET['x'], $_GET['y'], $x, $y)) {
+			$style=' style="background-color: yellow"';
+			$link1='<a href="?x='.$x.'&y='.$y.'">';
+			$m='';
+		}
 		else {
 			$style='';
 			$link1='<a href="?x='.$x.'&y='.$y.'">';
