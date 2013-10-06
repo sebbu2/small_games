@@ -8,11 +8,11 @@ BODY {
 	font-size: 20pt;
 }
 TABLE TR {
-	height: 35px;
+	height: 40px;
 }
 TABLE TD {
 	text-align: center;
-	width: 35px;
+	width: 40px;
 }
 A {
 	color: inherit;
@@ -58,6 +58,8 @@ $h=0;
 		$board->add_piece($i, $h, 'Pawn');
 	}
 //init end
+
+$board->add_piece(5, 5, 'Queen', 'W'); //help demonstration
 
 //display start
 ?><table border="1"><?php
