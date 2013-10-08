@@ -1,4 +1,7 @@
-<!DOCTYPE html>
+<?php
+require('chess.php');
+session_start();
+?><!DOCTYPE html>
 <html>
 <head>
 <title>Chess</title>
@@ -22,44 +25,22 @@ A {
 <body>
 
 <?php
-require('chess.php');
 if(!array_key_exists('x',$_GET)) $_GET['x']=-1;
 if(!array_key_exists('y',$_GET)) $_GET['y']=-1;
-$board=new board(8,8);
-//var_dump($board->grid);
 
-//init start
-$board->cur_color='W';
-$h=7;
-	$board->add_piece(0, $h, 'Rook');
-	$board->add_piece(1, $h, 'Knight');
-	$board->add_piece(2, $h, 'Bishop');
-	$board->add_piece(3, $h, 'Queen');
-	$board->add_piece(4, $h, 'King');
-	$board->add_piece(5, $h, 'Bishop');
-	$board->add_piece(6, $h, 'Knight');
-	$board->add_piece(7, $h, 'Rook');
---$h;
-	for($i=0;$i<8;++$i) {
-		$board->add_piece($i, $h, 'Pawn');
-	}
-$board->cur_color='B';
-$h=0;
-	$board->add_piece(0, $h, 'Rook');
-	$board->add_piece(1, $h, 'Knight');
-	$board->add_piece(2, $h, 'Bishop');
-	$board->add_piece(3, $h, 'Queen');
-	$board->add_piece(4, $h, 'King');
-	$board->add_piece(5, $h, 'Bishop');
-	$board->add_piece(6, $h, 'Knight');
-	$board->add_piece(7, $h, 'Rook');
-++$h;
-	for($i=0;$i<8;++$i) {
-		$board->add_piece($i, $h, 'Pawn');
-	}
-//init end
+if(array_key_exists('game',$_SESSION)) {
+	$board=new board(0,0);
+	$board->unserialize($_SESSION['game']);
+}
+else {
+	die('You need to init the game first.');
+}
 
-$board->add_piece(5, 5, 'Queen', 'W'); //help demonstration
+if( array_key_exists('x',$_GET) && array_key_exists('y',$_GET) && array_key_exists('dx',$_GET) && array_key_exists('dy',$_GET) ) {
+	$board->move($_GET['x'], $_GET['y'], $_GET['dx'], $_GET['dy']);
+}
+
+$_SESSION['game']=$board->serialize();
 
 //display start
 ?><table border="1"><?php
