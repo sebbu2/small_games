@@ -37,5 +37,5 @@ if(!array_key_exists('game',$_SESSION)||strlen($_SESSION['game'])<=2) {
 }
 assert($board instanceof board) or die('session/serializable error.');
 //init end
-print('done');
+print('<a href="javascript:history.go(-1);">done</a>');
 ?>
