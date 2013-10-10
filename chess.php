@@ -279,7 +279,7 @@ class board implements Serializable {
 				$p1=new $p1t($this);
 				$p1->color=$p1c;
 				$p1->x=$i%8;
-				$p1->y=$i/8;
+				$p1->y=(int)($i/8);
 			}
 			
 			$p2=$ns[$v&0x0F];
@@ -289,14 +289,12 @@ class board implements Serializable {
 				$p2=new $p2t($this);
 				$p2->color=$p2c;
 				$p2->x=($i+1)%8;
-				$p2->y=($i+1)/8;
+				$p2->y=(int)(($i+1)/8);
 			}
 			
 			$this->grid[$i/8][$i%8]=$p1;
-			if($p1 instanceof Piece) $p1->move($i%8, $i/8);
 			
 			$this->grid[($i+1)/8][($i+1)%8]=$p2;
-			if($p2 instanceof Piece) $p2->move(($i+1)%8, ($i+1)/8);
 			
 			$i+=2;
 		}

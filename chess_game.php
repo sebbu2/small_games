@@ -33,7 +33,7 @@ if(array_key_exists('game',$_SESSION)) {
 	$board->unserialize($_SESSION['game']);
 }
 else {
-	die('You need to init the game first.');
+	die('You need to <a href="chess_init.php">init</a> the game first.');
 }
 
 if( array_key_exists('x',$_GET) && array_key_exists('y',$_GET) && array_key_exists('dx',$_GET) && array_key_exists('dy',$_GET) ) {
