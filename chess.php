@@ -247,6 +247,19 @@ class board implements Serializable {
 		assert(strlen($result)==2+$this->width*$this->height/2);
 		return $result;
 	}
+	private function convert_to_obj($x, $y) {
+		$x=(int)$x;
+		$y=(int)$y;
+		$p=&$this->grid[$y][$x];
+		$pc=substr($p,0,1);//color
+		$pt=substr($p,1);//type
+		if(strlen($p)>0) {
+			$p=new $pt($this);
+			$p->color=$pc;
+			$p->x=$x;
+			$p->y=$y;
+		}
+	}
 	public function unserialize($data) { //load
 		if(strlen($data)==0) return;
 		$ar=unpack('C2',$data);
@@ -273,29 +286,15 @@ class board implements Serializable {
 		$i=0;
 		foreach($ar as $v) {
 			$p1=$ns[$v>>4];
-			$p1t=substr($p1,1);
-			$p1c=substr($p1,0,1);
-			if(strlen($p1)>0) {
-				$p1=new $p1t($this);
-				$p1->color=$p1c;
-				$p1->x=$i%8;
-				$p1->y=(int)($i/8);
-			}
-			
+			$x1=(int)($i%8);
+			$y1=(int)($i/8);
+			$this->grid[$y1][$x1]=$p1;
+			$this->convert_to_obj($x1, $y1);
 			$p2=$ns[$v&0x0F];
-			$p2t=substr($p2,1);
-			$p2c=substr($p2,0,1);
-			if(strlen($p2)>0) {
-				$p2=new $p2t($this);
-				$p2->color=$p2c;
-				$p2->x=($i+1)%8;
-				$p2->y=(int)(($i+1)/8);
-			}
-			
-			$this->grid[$i/8][$i%8]=$p1;
-			
-			$this->grid[($i+1)/8][($i+1)%8]=$p2;
-			
+			$x2=(int)(($i+1)%8);
+			$y2=(int)(($i+1)/8);
+			$this->grid[$y2][$x2]=$p2;
+			$this->convert_to_obj($x2, $y2);
 			$i+=2;
 		}
 		for($i=0;$i<$this->height;++$i) {
