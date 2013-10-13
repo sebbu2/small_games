@@ -52,7 +52,7 @@ for($y=0;$y<8;++$y) {
 		//echo '		<td>'.abbr((string)$board->get_piece($x, $y)).'</td>';
 		$p=$board->get_piece($x, $y);
 		//$m=$board->grid2[$y][$x];
-		if($_GET['x']==$x && $_GET['y']==$y) {
+		if($_GET['x']==$x && $_GET['y']==$y && !$board->is_empty($_GET['x'],$_GET['y'])) {
 			$style=' style="background-color: lightblue;"';
 			$link1='<a href="?">';
 			$m='';

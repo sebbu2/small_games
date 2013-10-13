@@ -209,18 +209,19 @@ class board implements Serializable {
 	public $width;
 	public $height;
 	public $cur_color;
-	public $grid2=array();
 	public function __construct($width, $height) {
-		$this->grid=array();
-		$this->grid2=array();
 		$this->width=$width;
 		$this->height=$height;
+		$this->init_array();
+	}
+	private function init_array($init=true) {
+		$this->grid=array();
 		for($i=0;$i<$this->height;++$i) {
 			$this->grid[$i]=array();
-			$this->grid2[$i]=array();
-			for($j=0;$j<$this->width;++$j) {
-				$this->grid[$i][$j]='';
-				$this->grid2[$i][$j]='';
+			if($init) {
+				for($j=0;$j<$this->width;++$j) {
+					$this->grid[$i][$j]='';
+				}
 			}
 		}
 	}
@@ -274,15 +275,7 @@ class board implements Serializable {
 			 9=>'BKing',10=>'BQueen',11=>'BRook',12=>'BKnight',13=>'BBishop',14=>'BPawn',
 		);
 		$ar=unpack('C*', $data);
-		
-		$i=0;
-		$this->grid=array();
-		$this->grid2=array();
-		for($i=0;$i<$this->height;++$i) {
-			$this->grid[$i]=array();
-			$this->grid2[$i]=array();
-		}
-		
+		$this->init_array(false);
 		$i=0;
 		foreach($ar as $v) {
 			$p1=$ns[$v>>4];
@@ -291,9 +284,9 @@ class board implements Serializable {
 			$this->convert_to_obj($p2, $i+1);
 			$i+=2;
 		}
+		assert(count($this->grid)==$this->height);
 		for($i=0;$i<$this->height;++$i) {
-			assert(count($this->grid)==$this->width);
-			assert(count($this->grid2)==$this->width);
+			assert(count($this->grid[$i])==$this->width);
 		}
 		return;
 	}
@@ -322,12 +315,12 @@ class board implements Serializable {
 	public function get_piece($x, $y) {
 		return $this->grid[$y][$x];
 	}
-	public function add_piece($x, $y, $piece, $c=NULL) {
+	public function add_piece($x, $y, $piece, $c) {
+		assert(in_array($c,array('W','B')));
 		$p=new $piece($this);
 		$p->x=$x;
 		$p->y=$y;
-		if($c!==NULL) $p->color=$c;
-		else $p->color=$this->cur_color;
+		$p->color=$c;
 		$this->grid[$y][$x]=&$p;
 		return $p;
 	}
